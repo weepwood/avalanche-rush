@@ -1,0 +1,76 @@
+name: Validate Game
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check src/game.js
+          node --check src/audio.js
+          node --check sw.js
+
+      - name: Validate static assets
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          import json
+          import re
+
+          root = Path('.')
+          html = (root / 'index.html').read_text(encoding='utf-8')
+
+          class PageParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids = set()
+                  self.references = []
+
+              def handle_starttag(self, tag, attrs):
+                  values = dict(attrs)
+                  if 'id' in values:
+                      self.ids.add(values['id'])
+                  for key in ('src', 'href'):
+                      value = values.get(key, '')
+                      if value.startswith('./'):
+                          self.references.append(value[2:])
+
+          parser = PageParser()
+          parser.feed(html)
+
+          missing_assets = [path for path in parser.references if not (root / path).exists()]
+          assert not missing_assets, f'Missing static assets: {missing_assets}'
+
+          game_js = (root / 'src/game.js').read_text(encoding='utf-8')
+          selectors = set(re.findall(r"querySelector\('#([^']+)'\)", game_js))
+          missing_ids = selectors - parser.ids
+          assert not missing_ids, f'Missing DOM ids: {sorted(missing_ids)}'
+
+          json.loads((root / 'manifest.webmanifest').read_text(encoding='utf-8'))
+          assert game_js.count('{') == game_js.count('}'), 'Unbalanced braces in game.js'
+          assert (root / 'style.css').read_text(encoding='utf-8').count('{') == (root / 'style.css').read_text(encoding='utf-8').count('}'), 'Unbalanced braces in style.css'
+
+          print(f'Validated {len(parser.ids)} DOM ids, {len(parser.references)} asset references and {len(selectors)} selectors.')
+          PY
+
+      - name: Smoke-test HTTP delivery
+        run: |
+          python3 -m http.server 8080 >/tmp/avalanche-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          sleep 1
+          for path in / /style.css /src/game.js /src/audio.js /manifest.webmanifest /sw.js /icon.svg; do
+            curl --fail --silent --show-error "http://127.0.0.1:8080${path}" >/dev/null
+          done
