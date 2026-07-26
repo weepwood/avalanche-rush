@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#071828" />
+  <meta name="description" content="Avalanche Rush：一款原创的横版雪崩滑雪冒险游戏。" />
+  <title>Avalanche Rush · 极地逃亡</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="game-shell">
+    <section class="game-frame" aria-label="Avalanche Rush 游戏区域">
+      <canvas id="game" width="1280" height="720" aria-label="横版滑雪游戏画面"></canvas>
+
+      <div class="topbar" aria-live="polite">
+        <div class="brand">
+          <span class="brand-mark">▲</span>
+          <div>
+            <strong>AVALANCHE RUSH</strong>
+            <small>极地逃亡</small>
+          </div>
+        </div>
+        <div class="stats">
+          <div><span>距离</span><strong id="distance">0 m</strong></div>
+          <div><span>分数</span><strong id="score">0</strong></div>
+          <div><span>连击</span><strong id="combo">×1.0</strong></div>
+        </div>
+        <button id="pauseBtn" class="icon-button" type="button" aria-label="暂停游戏">Ⅱ</button>
+      </div>
+
+      <div class="danger-meter" aria-label="雪崩距离">
+        <div class="danger-label"><span>雪崩</span><strong id="dangerText">安全</strong></div>
+        <div class="danger-track"><div id="dangerFill" class="danger-fill"></div></div>
+      </div>
+
+      <div id="statusChips" class="status-chips" aria-live="polite"></div>
+
+      <section id="menu" class="overlay menu-overlay">
+        <div class="panel hero-panel">
+          <p class="eyebrow">A CODE-DRAWN ALPINE ESCAPE</p>
+          <h1>冲在雪崩之前</h1>
+          <p class="intro">压低身体加速，松开腾空，在山脊与冰湖之间完成特技。救下伙伴，夺取载具，并把物资送回山脚营地。</p>
+          <div class="feature-grid">
+            <div><b>动态雪崩</b><span>威胁会持续改变地形</span></div>
+            <div><b>伙伴接力</b><span>雪橇犬与企鹅带来不同能力</span></div>
+            <div><b>程序雪山</b><span>每次滑行都有不同节奏</span></div>
+          </div>
+          <button id="startBtn" class="primary-button" type="button">开始滑行</button>
+          <div class="control-hints">
+            <span><kbd>按住</kbd> 俯身加速</span>
+            <span><kbd>松开</kbd> 起跳</span>
+            <span><kbd>空中按住</kbd> 前空翻</span>
+            <span><kbd>P</kbd> 暂停</span>
+          </div>
+          <p class="best">最佳距离 <strong id="bestDistance">0 m</strong> · 最高分 <strong id="bestScore">0</strong></p>
+        </div>
+      </section>
+
+      <section id="pause" class="overlay hidden">
+        <div class="panel compact-panel">
+          <p class="eyebrow">PAUSED</p>
+          <h2>雪山暂时安静了</h2>
+          <button id="resumeBtn" class="primary-button" type="button">继续滑行</button>
+          <button id="restartPauseBtn" class="secondary-button" type="button">重新开始</button>
+        </div>
+      </section>
+
+      <section id="gameOver" class="overlay hidden">
+        <div class="panel result-panel">
+          <p class="eyebrow">RUN COMPLETE</p>
+          <h2 id="resultTitle">被雪崩追上了</h2>
+          <div class="result-grid">
+            <div><span>本次距离</span><strong id="finalDistance">0 m</strong></div>
+            <div><span>最终分数</span><strong id="finalScore">0</strong></div>
+            <div><span>最佳连击</span><strong id="finalCombo">×1.0</strong></div>
+            <div><span>收集物资</span><strong id="finalSupplies">0</strong></div>
+          </div>
+          <p id="resultNote" class="result-note"></p>
+          <button id="restartBtn" class="primary-button" type="button">再次挑战</button>
+          <button id="backMenuBtn" class="secondary-button" type="button">返回营地</button>
+        </div>
+      </section>
+
+      <button id="touchAction" class="touch-action" type="button" aria-label="按住加速，松开跳跃">
+        <span>按住</span><b>加速</b>
+      </button>
+    </section>
+
+    <footer>
+      <span>原创 HTML5 Canvas 游戏原型</span>
+      <span>键盘、鼠标与触屏均可操作</span>
+    </footer>
+  </main>
+
+  <script type="module" src="./src/game.js"></script>
+</body>
+</html>
